@@ -1,0 +1,38 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["selectRelationCount"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id   String @id @default(cuid())
+  name String
+
+  foos Foo[]
+  bars Bar[]
+}
+
+model Foo {
+  id       String @id @default(cuid())
+  tenantId String
+
+  bar    Bar?
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, id])
+}
+
+model Bar {
+  id       String @id @default(cuid())
+  fooId    String
+  tenantId String
+
+  foo    Foo    @relation(fields: [tenantId, fooId], references: [tenantId, id])
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, id])
+}
